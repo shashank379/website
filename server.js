@@ -6,6 +6,15 @@ const connectDB = require('./config/db');
 // Load environment variables
 dotenv.config();
 
+// Debug: Log environment variable status at startup
+console.log('🚀 Starting Ritzy Shop Backend...');
+console.log('🔑 Environment Check:');
+console.log('   - RESEND_API_KEY loaded:', !!process.env.RESEND_API_KEY);
+console.log('   - FROM_EMAIL:', process.env.FROM_EMAIL || 'orders@ritzy24.com (default)');
+console.log('   - ADMIN_EMAIL:', process.env.ADMIN_EMAIL || 'ritzy2233@gmail.com (default)');
+console.log('   - MONGODB_URI loaded:', !!process.env.MONGODB_URI);
+console.log('   - PORT:', process.env.PORT || 5000);
+
 // Connect to MongoDB
 connectDB();
 
@@ -50,7 +59,7 @@ app.get('/api/test-email', async (req, res) => {
   }
 });
 
-// Resend email test route
+// Resend email test route - check connection
 app.get('/api/test-resend', async (req, res) => {
   try {
     const { testResendConnection } = require('./utils/sendEmail');
@@ -61,6 +70,34 @@ app.get('/api/test-resend', async (req, res) => {
       success: false, 
       error: error.message,
       message: 'Resend test failed'
+    });
+  }
+});
+
+// Send actual test email - use: GET /api/send-test-email?to=your@email.com
+app.get('/api/send-test-email', async (req, res) => {
+  try {
+    const { sendTestEmail } = require('./utils/sendEmail');
+    const toEmail = req.query.to || process.env.ADMIN_EMAIL || 'ritzy2233@gmail.com';
+    
+    console.log('🔧 [Test] Sending test email to:', toEmail);
+    const result = await sendTestEmail(toEmail);
+    
+    res.json({
+      ...result,
+      testedAt: new Date().toISOString(),
+      envCheck: {
+        RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+        FROM_EMAIL: process.env.FROM_EMAIL || 'orders@ritzy24.com (default)',
+        ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'ritzy2233@gmail.com (default)'
+      }
+    });
+  } catch (error) {
+    console.error('❌ [Test] Send test email failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      message: 'Send test email failed'
     });
   }
 });

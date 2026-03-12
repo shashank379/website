@@ -1,11 +1,34 @@
 const { Resend } = require('resend');
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization - Resend client created only when needed
+// This ensures environment variables are loaded before initialization
+let resendClient = null;
+
+const getResendClient = () => {
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY;
+    console.log('🔑 [Resend] Initializing client...');
+    console.log('🔑 [Resend] API Key exists:', !!apiKey);
+    console.log('🔑 [Resend] API Key length:', apiKey ? apiKey.length : 0);
+    console.log('🔑 [Resend] API Key prefix:', apiKey ? apiKey.substring(0, 10) + '...' : 'N/A');
+    
+    if (!apiKey) {
+      console.error('❌ [Resend] RESEND_API_KEY is not set in environment variables!');
+      return null;
+    }
+    
+    resendClient = new Resend(apiKey);
+    console.log('✅ [Resend] Client initialized successfully');
+  }
+  return resendClient;
+};
 
 // Admin email for notifications
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ritzy2233@gmail.com';
-const FROM_EMAIL = process.env.FROM_EMAIL || 'orders@ritzy24.com';
+const getAdminEmail = () => process.env.ADMIN_EMAIL || 'ritzy2233@gmail.com';
+
+// IMPORTANT: FROM_EMAIL must match your verified domain in Resend
+// For verified domain ritzy24.com, use: orders@ritzy24.com
+const getFromEmail = () => process.env.FROM_EMAIL || 'orders@ritzy24.com';
 
 /**
  * Send order confirmation email to customer
@@ -112,7 +135,7 @@ const sendOrderEmail = async (userEmail, orderDetails) => {
           <p style="margin-top: 25px;">We will notify you once your order is shipped. Thank you for choosing Ritzy! 🙏</p>
         </div>
         <div class="footer">
-          <p>If you have any questions, contact us at ${ADMIN_EMAIL}</p>
+          <p>If you have any questions, contact us at ${getAdminEmail()}</p>
           <p style="margin: 10px 0 0;">© ${new Date().getFullYear()} Ritzy - Aadibasaveshwara Enterprises. All rights reserved.</p>
         </div>
       </div>
@@ -121,8 +144,18 @@ const sendOrderEmail = async (userEmail, orderDetails) => {
   `;
 
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      console.error('❌ [Resend] Client not initialized - check RESEND_API_KEY');
+      return false;
+    }
+
+    const fromEmail = getFromEmail();
+    console.log('📧 [Resend] Sending from:', fromEmail);
+    console.log('📧 [Resend] Sending to:', userEmail);
+
     const { data, error } = await resend.emails.send({
-      from: `Ritzy Shop <${FROM_EMAIL}>`,
+      from: `Ritzy Shop <${fromEmail}>`,
       to: [userEmail],
       subject: `Order Confirmed! #${orderNum} - Ritzy Shop`,
       html: emailHtml,
@@ -232,9 +265,20 @@ const sendAdminNotification = async (orderDetails) => {
   `;
 
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      console.error('❌ [Resend] Client not initialized - check RESEND_API_KEY');
+      return false;
+    }
+
+    const fromEmail = getFromEmail();
+    const adminEmail = getAdminEmail();
+    console.log('📧 [Resend] Sending admin notification from:', fromEmail);
+    console.log('📧 [Resend] Sending admin notification to:', adminEmail);
+
     const { data, error } = await resend.emails.send({
-      from: `Ritzy Shop System <${FROM_EMAIL}>`,
-      to: [ADMIN_EMAIL],
+      from: `Ritzy Shop System <${fromEmail}>`,
+      to: [adminEmail],
       subject: `🛒 New Order #${orderNum} - ₹${orderDetails.totalAmount}`,
       html: adminEmailHtml,
     });
@@ -289,16 +333,30 @@ const sendOrderEmails = async (order) => {
  */
 const testResendConnection = async () => {
   console.log('📧 [Resend] Testing connection...');
+  console.log('🔑 [Resend] API Key exists:', !!process.env.RESEND_API_KEY);
+  console.log('🔑 [Resend] FROM_EMAIL:', getFromEmail());
+  console.log('🔑 [Resend] ADMIN_EMAIL:', getAdminEmail());
   
   if (!process.env.RESEND_API_KEY) {
     return {
       success: false,
-      message: 'RESEND_API_KEY is not configured',
-      apiKeyConfigured: false
+      message: 'RESEND_API_KEY is not configured in environment variables',
+      apiKeyConfigured: false,
+      fromEmail: getFromEmail(),
+      adminEmail: getAdminEmail()
     };
   }
 
   try {
+    const resend = getResendClient();
+    if (!resend) {
+      return {
+        success: false,
+        message: 'Failed to initialize Resend client',
+        apiKeyConfigured: false
+      };
+    }
+
     // Try to get domains to verify API key works
     const { data, error } = await resend.domains.list();
     
@@ -306,7 +364,8 @@ const testResendConnection = async () => {
       return {
         success: false,
         message: `API key validation failed: ${error.message}`,
-        apiKeyConfigured: true
+        apiKeyConfigured: true,
+        error: error
       };
     }
 
@@ -314,13 +373,96 @@ const testResendConnection = async () => {
       success: true,
       message: 'Resend connection successful!',
       apiKeyConfigured: true,
-      domains: data?.data?.length || 0
+      domains: data?.data?.length || 0,
+      domainList: data?.data?.map(d => d.name) || [],
+      fromEmail: getFromEmail(),
+      adminEmail: getAdminEmail()
     };
   } catch (error) {
     return {
       success: false,
       message: `Connection test failed: ${error.message}`,
-      apiKeyConfigured: true
+      apiKeyConfigured: true,
+      error: error.message
+    };
+  }
+};
+
+/**
+ * Send a test email to verify configuration works
+ * @param {string} toEmail - Email address to send test to
+ * @returns {Promise<Object>} - Test result with full details
+ */
+const sendTestEmail = async (toEmail) => {
+  console.log('📧 [Resend] Sending test email to:', toEmail);
+  console.log('🔑 [Resend] API Key exists:', !!process.env.RESEND_API_KEY);
+  
+  if (!process.env.RESEND_API_KEY) {
+    return {
+      success: false,
+      message: 'RESEND_API_KEY is not configured',
+      step: 'api_key_check'
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) {
+    return {
+      success: false,
+      message: 'Failed to initialize Resend client',
+      step: 'client_init'
+    };
+  }
+
+  const fromEmail = getFromEmail();
+  console.log('📧 [Resend] Sending from:', fromEmail);
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `Ritzy Shop Test <${fromEmail}>`,
+      to: [toEmail],
+      subject: 'Test Email from Ritzy Shop - ' + new Date().toISOString(),
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #FF2A0A;">Test Email Successful!</h1>
+          <p>This is a test email from Ritzy Shop backend.</p>
+          <p><strong>Timestamp:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
+          <p><strong>From:</strong> ${fromEmail}</p>
+          <p><strong>To:</strong> ${toEmail}</p>
+          <hr style="border: 1px solid #eee; margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">If you received this email, your Resend configuration is working correctly!</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error('❌ [Resend] Test email failed:', JSON.stringify(error, null, 2));
+      return {
+        success: false,
+        message: 'Failed to send test email',
+        error: error,
+        step: 'send_email',
+        fromEmail: fromEmail,
+        toEmail: toEmail
+      };
+    }
+
+    console.log('✅ [Resend] Test email sent! Response:', JSON.stringify(data, null, 2));
+    return {
+      success: true,
+      message: 'Test email sent successfully!',
+      emailId: data?.id,
+      fromEmail: fromEmail,
+      toEmail: toEmail
+    };
+  } catch (error) {
+    console.error('❌ [Resend] Test email exception:', error.message);
+    return {
+      success: false,
+      message: `Exception: ${error.message}`,
+      step: 'exception',
+      fromEmail: fromEmail,
+      toEmail: toEmail
     };
   }
 };
@@ -329,5 +471,9 @@ module.exports = {
   sendOrderEmail,
   sendAdminNotification,
   sendOrderEmails,
-  testResendConnection
+  testResendConnection,
+  sendTestEmail,
+  getResendClient,
+  getFromEmail,
+  getAdminEmail
 };
