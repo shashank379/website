@@ -14,11 +14,26 @@ const toNumber = (value) => {
 // @access  Public
 exports.getProducts = async (req, res) => {
   try {
+    console.log('[Products API] GET /api/products request received');
     const products = await Product.find().sort({ createdAt: -1 });
+    console.log('[Products API] Returning products count:', products.length);
     res.json({ success: true, count: products.length, products });
   } catch (error) {
     console.error('Get products error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch products' });
+  }
+};
+
+// @desc    Get products count for deployment/debug validation
+// @route   GET /api/products/debug/count
+// @access  Public
+exports.getProductsDebugCount = async (req, res) => {
+  try {
+    const count = await Product.countDocuments();
+    res.json({ success: true, count });
+  } catch (error) {
+    console.error('Get product debug count error:', error);
+    res.status(500).json({ success: false, message: 'Failed to count products' });
   }
 };
 

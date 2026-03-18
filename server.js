@@ -13,6 +13,8 @@ console.log('   - RESEND_API_KEY loaded:', !!process.env.RESEND_API_KEY);
 console.log('   - FROM_EMAIL:', process.env.FROM_EMAIL || 'orders@ritzy24.com (default)');
 console.log('   - ADMIN_EMAIL:', process.env.ADMIN_EMAIL || 'ritzy2233@gmail.com (default)');
 console.log('   - MONGODB_URI loaded:', !!process.env.MONGODB_URI);
+console.log('   - MONGO_URI loaded:', !!process.env.MONGO_URI);
+console.log('   - FRONTEND_URL:', process.env.FRONTEND_URL || 'not set');
 console.log('   - PORT:', process.env.PORT || 5000);
 
 // Connect to MongoDB
