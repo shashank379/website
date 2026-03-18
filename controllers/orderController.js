@@ -29,7 +29,7 @@ exports.createOrder = async (req, res) => {
       paymentMethod,
       paymentId,
       paymentStatus: paymentMethod === 'COD' ? 'PENDING' : 'PAID',
-      orderStatus: 'CONFIRMED',
+      orderStatus: 'Confirmed',
       notes
     });
 

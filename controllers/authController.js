@@ -2,8 +2,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: '30d'
   });
 };
@@ -37,7 +37,8 @@ exports.register = async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
-        token: generateToken(user._id)
+        role: user.role,
+        token: generateToken(user._id, user.role)
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -65,7 +66,8 @@ exports.login = async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
-        token: generateToken(user._id)
+        role: user.role,
+        token: generateToken(user._id, user.role)
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
@@ -118,7 +120,8 @@ exports.updateProfile = async (req, res) => {
         email: updatedUser.email,
         phone: updatedUser.phone,
         address: updatedUser.address,
-        token: generateToken(updatedUser._id)
+        role: updatedUser.role,
+        token: generateToken(updatedUser._id, updatedUser.role)
       });
     } else {
       res.status(404).json({ message: 'User not found' });
