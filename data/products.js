@@ -1,0 +1,290 @@
+const products = [
+  {
+    legacyId: 'p26',
+    name: 'Customized Chocolates',
+    description: 'Delicious personalized chocolates perfect for gifts and special occasions.',
+    price: 20,
+    originalPrice: 25,
+    image: '/c1.jpg.jpeg',
+    images: ['/c1.jpg.jpeg', '/c2.jpg.jpeg', '/c3.jpg.jpeg', '/c4.jpg.jpeg'],
+    category: 'Customized',
+    stock: 100
+  },
+  {
+    legacyId: 'p5',
+    name: 'Mini Stationary Kit',
+    description: 'Compact stationary kit with multiple variations.',
+    price: 35,
+    originalPrice: 50,
+    image: '/IMG_20251119_193418768.jpg.jpeg',
+    images: ['/IMG_20251119_193418768.jpg.jpeg', '/IMG_20251119_193447228.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p8',
+    name: 'Water Painting Set',
+    description: 'Premium water painting set with multiple variations.',
+    price: 46,
+    originalPrice: 60,
+    image: '/IMG_20251119_201137158.jpg.jpeg',
+    images: ['/IMG_20251119_201137158.jpg.jpeg', '/IMG_20251119_201201453.jpg.jpeg'],
+    category: 'Art',
+    stock: 100
+  },
+  {
+    legacyId: 'p15',
+    name: 'Mini Scratch Book',
+    description: 'Fun scratch book set with multiple designs.',
+    price: 49,
+    originalPrice: 60,
+    image: '/IMG_20251119_225932708.jpg.jpeg',
+    images: ['/IMG_20251119_225932708.jpg.jpeg', '/IMG_20251119_230025416.jpg.jpeg'],
+    category: 'Books',
+    stock: 100
+  },
+  {
+    legacyId: 'p22',
+    name: 'Ice Cream Fan',
+    description: 'Colorful ice cream fan with multiple designs.',
+    price: 59,
+    originalPrice: 70,
+    image: '/IMG_20251120_190201000.jpg.jpeg',
+    images: ['/IMG_20251120_190201000.jpg.jpeg'],
+    category: 'Accessories',
+    stock: 100
+  },
+  {
+    legacyId: 'p3',
+    name: 'Colouring Books Set',
+    description: 'Creative coloring fun for all ages.',
+    price: 60,
+    originalPrice: 75,
+    image: '/IMG_20251119_190549433 (1).jpg.jpeg',
+    images: ['/IMG_20251119_190549433 (1).jpg.jpeg'],
+    category: 'Books',
+    stock: 100
+  },
+  {
+    legacyId: 'p1',
+    name: 'Cartoon Sketch pen',
+    description: 'Beautiful cartoon sketch pen set with multiple color variations.',
+    price: 78,
+    originalPrice: 100,
+    image: '/IMG_20251119_184453354.jpg.jpeg',
+    images: ['/IMG_20251119_184453354.jpg.jpeg', '/IMG_20251119_184508733.jpg.jpeg', '/IMG_20251119_184805135.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p17',
+    name: 'Water Colouring Book',
+    description: 'Premium water colouring book with multiple variations.',
+    price: 78,
+    originalPrice: 100,
+    image: '/IMG_20251120_180949348.jpg.jpeg',
+    images: ['/IMG_20251120_180949348.jpg.jpeg', '/IMG_20251120_181015024.jpg.jpeg'],
+    category: 'Books',
+    stock: 100
+  },
+  {
+    legacyId: 'p18',
+    name: '12 pencil set + Eraser + Sharpener Set',
+    description: 'Complete pencil set with eraser and sharpener.',
+    price: 78,
+    originalPrice: 90,
+    image: '/IMG_20251120_181529062.jpg.jpeg',
+    images: ['/IMG_20251120_181529062.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p19',
+    name: 'Electric Fan + Eraser',
+    description: 'Compact electric fan with eraser set and multiple color variations.',
+    price: 81,
+    originalPrice: 100,
+    image: '/IMG_20251120_182159061.jpg.jpeg',
+    images: ['/IMG_20251120_182159061.jpg.jpeg', '/IMG_20251120_182527770.jpg.jpeg', '/IMG_20251120_183632512.jpg.jpeg'],
+    category: 'Accessories',
+    stock: 100
+  },
+  {
+    legacyId: 'p9',
+    name: 'Pouch Stationary Set',
+    description: 'Beautiful pouch and stationary items set.',
+    price: 89,
+    originalPrice: 104,
+    image: '/IMG_20251119_220800486.jpg.jpeg',
+    images: ['/IMG_20251119_220800486.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p11',
+    name: 'Geometry Box Set',
+    description: 'Complete geometry box set with precision tools.',
+    price: 96,
+    originalPrice: 120,
+    image: '/IMG_20251119_224226680.jpg.jpeg',
+    images: ['/IMG_20251119_224226680.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p2',
+    name: 'Piggy bank',
+    description: 'Beautiful piggy bank collection with multiple color variations.',
+    price: 99,
+    originalPrice: 110,
+    image: '/IMG_20251119_185707264 (1).jpg.jpeg',
+    images: ['/IMG_20251119_185707264 (1).jpg.jpeg', '/IMG_20251119_185724513.jpg.jpeg', '/IMG_20251119_185740233.jpg.jpeg'],
+    category: 'Gifts',
+    stock: 100
+  },
+  {
+    legacyId: 'p6',
+    name: 'Geometry box + Crayons + Stationary Kit',
+    description: 'Complete geometry box with crayons and stationary set.',
+    price: 99,
+    originalPrice: 120,
+    image: '/IMG_20251119_195919781.jpg.jpeg',
+    images: ['/IMG_20251119_195919781.jpg.jpeg', '/IMG_20251119_195931151.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p23',
+    name: 'puzzle piggy bank',
+    description: 'Fun puzzle piggy bank with multiple color variations.',
+    price: 99,
+    originalPrice: 120,
+    image: '/IMG_20251120_190357340.jpg.jpeg',
+    images: ['/IMG_20251120_190357340.jpg.jpeg', '/IMG_20251120_190500198.jpg.jpeg'],
+    category: 'Gifts',
+    stock: 100
+  },
+  {
+    legacyId: 'p24',
+    name: '3x3 Rubix cube',
+    description: 'Classic 3x3 Rubix cube with multiple color variations.',
+    price: 99,
+    originalPrice: 120,
+    image: '/IMG_20251120_190645642 (1).jpg.jpeg',
+    images: ['/IMG_20251120_190645642 (1).jpg.jpeg', '/IMG_20251120_190645642.jpg.jpeg', '/IMG_20251120_190709970.jpg.jpeg'],
+    category: 'Games',
+    stock: 100
+  },
+  {
+    legacyId: 'p25',
+    name: 'cat piggy bank',
+    description: 'Adorable cat-shaped piggy bank with multiple color variations and accessories.',
+    price: 99,
+    originalPrice: 110,
+    image: '/IMG_20251120_190921724.jpg.jpeg',
+    images: ['/IMG_20251120_190921724.jpg.jpeg', '/IMG_20251120_192048623.jpg.jpeg', '/IMG_20251120_190918813.jpg.jpeg'],
+    category: 'Gifts',
+    stock: 100
+  },
+  {
+    legacyId: 'p7',
+    name: 'LED Lighting Board',
+    description: 'Professional LED lighting board with multiple variations.',
+    price: 105,
+    originalPrice: 130,
+    image: '/IMG_20251119_200539205.jpg.jpeg',
+    images: ['/IMG_20251119_200539205.jpg.jpeg', '/IMG_20251119_200544244.jpg.jpeg', '/IMG_20251119_200547211.jpg.jpeg'],
+    category: 'Art',
+    stock: 100
+  },
+  {
+    legacyId: 'p21',
+    name: '5 in 1 Creative Set',
+    description: 'Versatile 5-in-1 creative set with coasters and banners.',
+    price: 114,
+    originalPrice: 130,
+    image: '/IMG_20251120_185251619.jpg.jpeg',
+    images: ['/IMG_20251120_185251619.jpg.jpeg', '/IMG_20251120_185604380.jpg.jpeg'],
+    category: 'Creative',
+    stock: 100
+  },
+  {
+    legacyId: 'p20',
+    name: 'LCD Geometry box',
+    description: 'Complete LCD geometry box set with stickers and creative materials.',
+    price: 118,
+    originalPrice: 130,
+    image: '/IMG_20251120_184523729.jpg.jpeg',
+    images: ['/IMG_20251120_184523729.jpg.jpeg', '/IMG_20251120_184542093.jpg.jpeg', '/IMG_20251120_184554821.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p14',
+    name: 'Colouring Book Set (Scratch book + Colouring)',
+    description: 'Complete colouring and scratch book set with multiple variations.',
+    price: 129,
+    originalPrice: 150,
+    image: '/IMG_20251119_225636929.jpg.jpeg',
+    images: ['/IMG_20251119_225636929.jpg.jpeg', '/IMG_20251119_225647724.jpg.jpeg', '/IMG_20251119_225656215.jpg.jpeg', '/IMG_20251119_225659216.jpg.jpeg'],
+    category: 'Books',
+    stock: 100
+  },
+  {
+    legacyId: 'p16',
+    name: 'Colouring book set',
+    description: 'Complete colouring book collection.',
+    price: 129,
+    originalPrice: 150,
+    image: '/IMG_20251119_230259311.jpg.jpeg',
+    images: ['/IMG_20251119_230259311.jpg.jpeg'],
+    category: 'Books',
+    stock: 100
+  },
+  {
+    legacyId: 'p4',
+    name: 'Wooden Painting Stand',
+    description: 'Professional wooden painting stand with multiple variations.',
+    price: 136,
+    originalPrice: 150,
+    image: '/IMG_20251119_190549433.jpg.jpeg',
+    images: ['/IMG_20251119_190549433.jpg.jpeg', '/IMG_20251119_190734643.jpg.jpeg', '/IMG_20251119_190834495.jpg.jpeg'],
+    category: 'Art',
+    stock: 100
+  },
+  {
+    legacyId: 'p10',
+    name: 'Macro Stationary Set',
+    description: 'Purse + Watch + Stationary Set with multiple variations.',
+    price: 136,
+    originalPrice: 150,
+    image: '/IMG_20251119_222746898.jpg.jpeg',
+    images: ['/IMG_20251119_222746898.jpg.jpeg', '/IMG_20251119_223538812.jpg.jpeg', '/IMG_20251119_223556061.jpg.jpeg'],
+    category: 'Stationery',
+    stock: 100
+  },
+  {
+    legacyId: 'p12',
+    name: 'Customized Phone Case',
+    description: 'Durable personalized phone cases.',
+    price: 150,
+    originalPrice: 180,
+    image: '/IMG_20251119_224526359.jpg.jpeg',
+    images: ['/IMG_20251119_224526359.jpg.jpeg'],
+    category: 'Customized',
+    stock: 100
+  },
+  {
+    legacyId: 'p13',
+    name: 'Engraved Medals',
+    description: 'Custom engraved medals and badges.',
+    price: 250,
+    originalPrice: 300,
+    image: '/IMG_20251119_224938574.jpg.jpeg',
+    images: ['/IMG_20251119_224938574.jpg.jpeg'],
+    category: 'Customized',
+    stock: 100
+  }
+];
+
+module.exports = products;
