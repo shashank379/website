@@ -14,13 +14,14 @@ const toNumber = (value) => {
 // @access  Public
 exports.getProducts = async (req, res) => {
   try {
-    console.log('[Products API] GET /api/products request received');
+    console.log('📦 [Products API] GET /api/products request received');
     const products = await Product.find().sort({ createdAt: -1 });
-    console.log('[Products API] Returning products count:', products.length);
+    console.log(`✅ [Products API] Successfully fetched ${products.length} products from database`);
     res.json({ success: true, count: products.length, products });
   } catch (error) {
-    console.error('Get products error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch products' });
+    console.error(`❌ [Products API] Get products error: ${error.message}`);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ success: false, message: 'Failed to fetch products', error: error.message });
   }
 };
 
@@ -30,10 +31,11 @@ exports.getProducts = async (req, res) => {
 exports.getProductsDebugCount = async (req, res) => {
   try {
     const count = await Product.countDocuments();
+    console.log(`📊 [Products Debug] Product count: ${count}`);
     res.json({ success: true, count });
   } catch (error) {
-    console.error('Get product debug count error:', error);
-    res.status(500).json({ success: false, message: 'Failed to count products' });
+    console.error(`❌ [Products Debug] Get product count error: ${error.message}`);
+    res.status(500).json({ success: false, message: 'Failed to count products', error: error.message });
   }
 };
 
@@ -43,6 +45,7 @@ exports.getProductsDebugCount = async (req, res) => {
 exports.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`🔍 [Product Detail] GET /api/products/${id}`);
 
     if (!isValidObjectId(id)) {
       return res.status(400).json({ success: false, message: 'Invalid product ID' });
@@ -50,13 +53,16 @@ exports.getProductById = async (req, res) => {
 
     const product = await Product.findById(id);
     if (!product) {
+      console.warn(`⚠️ [Product Detail] Product not found for ID: ${id}`);
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
+    console.log(`✅ [Product Detail] Found product: ${product.name}`);
     res.json({ success: true, product });
   } catch (error) {
-    console.error('Get product by ID error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch product' });
+    console.error(`❌ [Product Detail] Error fetching product ${req.params.id}: ${error.message}`);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ success: false, message: 'Failed to fetch product', error: error.message });
   }
 };
 
@@ -77,11 +83,14 @@ exports.createProduct = async (req, res) => {
       stock
     } = req.body;
 
+    console.log(`📝 [Create Product] Received request for product: ${name}`);
+
     const parsedPrice = toNumber(price);
     const parsedOriginalPrice = toNumber(originalPrice);
     const parsedStock = toNumber(stock);
 
     if (!name || !description || parsedPrice === undefined) {
+      console.warn('⚠️ [Create Product] Validation failed: missing required fields');
       return res.status(400).json({
         success: false,
         message: 'name, price, and description are required'
@@ -100,9 +109,11 @@ exports.createProduct = async (req, res) => {
       stock: parsedStock ?? 0
     });
 
+    console.log(`✅ [Create Product] Product created successfully: ${product._id}`);
     res.status(201).json({ success: true, message: 'Product created', product });
   } catch (error) {
-    console.error('Create product error:', error);
+    console.error(`❌ [Create Product] Error creating product: ${error.message}`);
+    console.error('Stack:', error.stack);
     res.status(500).json({ success: false, message: 'Failed to create product', error: error.message });
   }
 };
@@ -113,8 +124,10 @@ exports.createProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`🔄 [Update Product] PUT /api/products/${id}`);
 
     if (!isValidObjectId(id)) {
+      console.warn(`⚠️ [Update Product] Invalid product ID: ${id}`);
       return res.status(400).json({ success: false, message: 'Invalid product ID' });
     }
 
@@ -145,12 +158,15 @@ exports.updateProduct = async (req, res) => {
     });
 
     if (!product) {
+      console.warn(`⚠️ [Update Product] Product not found for ID: ${id}`);
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
+    console.log(`✅ [Update Product] Product updated: ${product._id}`);
     res.json({ success: true, message: 'Product updated', product });
   } catch (error) {
-    console.error('Update product error:', error);
+    console.error(`❌ [Update Product] Error updating product ${req.params.id}: ${error.message}`);
+    console.error('Stack:', error.stack);
     res.status(500).json({ success: false, message: 'Failed to update product', error: error.message });
   }
 };
@@ -161,19 +177,24 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`🗑️ [Delete Product] DELETE /api/products/${id}`);
 
     if (!isValidObjectId(id)) {
+      console.warn(`⚠️ [Delete Product] Invalid product ID: ${id}`);
       return res.status(400).json({ success: false, message: 'Invalid product ID' });
     }
 
     const product = await Product.findByIdAndDelete(id);
     if (!product) {
+      console.warn(`⚠️ [Delete Product] Product not found for ID: ${id}`);
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
+    console.log(`✅ [Delete Product] Product deleted: ${id}`);
     res.json({ success: true, message: 'Product deleted' });
   } catch (error) {
-    console.error('Delete product error:', error);
+    console.error(`❌ [Delete Product] Error deleting product ${req.params.id}: ${error.message}`);
+    console.error('Stack:', error.stack);
     res.status(500).json({ success: false, message: 'Failed to delete product', error: error.message });
   }
 };
@@ -185,27 +206,34 @@ exports.addProductReview = async (req, res) => {
   try {
     const { id } = req.params;
     const { user, userName, rating, comment } = req.body;
+    
+    console.log(`⭐ [Add Review] POST /api/products/${id}/reviews from user: ${userName}`);
 
     if (!isValidObjectId(id)) {
+      console.warn(`⚠️ [Add Review] Invalid product ID: ${id}`);
       return res.status(400).json({ success: false, message: 'Invalid product ID' });
     }
 
     const parsedRating = Number(rating);
     if (!comment || !comment.trim()) {
+      console.warn('⚠️ [Add Review] Review comment is required');
       return res.status(400).json({ success: false, message: 'Review comment is required' });
     }
 
     if (Number.isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      console.warn(`⚠️ [Add Review] Invalid rating: ${rating}`);
       return res.status(400).json({ success: false, message: 'Rating must be between 1 and 5' });
     }
 
     const trimmedUserName = (userName || '').trim();
     if (!trimmedUserName) {
+      console.warn('⚠️ [Add Review] Reviewer name is required');
       return res.status(400).json({ success: false, message: 'Reviewer name is required' });
     }
 
     const product = await Product.findById(id);
     if (!product) {
+      console.warn(`⚠️ [Add Review] Product not found for ID: ${id}`);
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
@@ -222,6 +250,7 @@ exports.addProductReview = async (req, res) => {
 
     await product.save();
 
+    console.log(`✅ [Add Review] Review added successfully. Product rating now: ${product.rating} (${product.numReviews} reviews)`);
     res.status(201).json({
       success: true,
       message: 'Review added successfully',
@@ -230,7 +259,8 @@ exports.addProductReview = async (req, res) => {
       product
     });
   } catch (error) {
-    console.error('Add review error:', error);
+    console.error(`❌ [Add Review] Error adding review to product ${req.params.id}: ${error.message}`);
+    console.error('Stack:', error.stack);
     res.status(500).json({ success: false, message: 'Failed to add review', error: error.message });
   }
 };

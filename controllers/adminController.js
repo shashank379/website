@@ -26,15 +26,51 @@ const toNumber = (value) => {
 exports.adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    console.log(`📝 [Admin Login] Request received for email: ${email}`);
 
-    const user = await User.findOne({ email });
-    if (!user || !(await user.matchPassword(password))) {
+    const normalizedEmail = (email || '').toLowerCase().trim();
+    const configuredAdminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
+    const configuredAdminPassword = (process.env.ADMIN_PASSWORD || '').trim();
+
+    if (!configuredAdminEmail) {
+      console.error('❌ [Admin Login] ADMIN_EMAIL env var not set');
+      return res.status(500).json({ success: false, message: 'Server configuration error: ADMIN_EMAIL not set' });
+    }
+
+    if (!configuredAdminPassword) {
+      console.error('❌ [Admin Login] ADMIN_PASSWORD env var not set');
+      return res.status(500).json({ success: false, message: 'Server configuration error: ADMIN_PASSWORD not set' });
+    }
+
+    if (normalizedEmail !== configuredAdminEmail) {
+      console.warn(`⚠️ [Admin Login] Email mismatch: ${normalizedEmail} !== ${configuredAdminEmail}`);
+      return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+    }
+
+    if (password !== configuredAdminPassword) {
+      console.warn(`⚠️ [Admin Login] Password mismatch for ${normalizedEmail}`);
+      return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
+    
+    if (!user) {
+      console.warn(`⚠️ [Admin Login] User not found in database for ${normalizedEmail}`);
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    if (!(await user.matchPassword(password))) {
+      console.warn(`⚠️ [Admin Login] Password mismatch in database for ${normalizedEmail}`);
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
     if (user.role !== 'admin') {
+      console.warn(`⚠️ [Admin Login] User ${normalizedEmail} role is ${user.role}, not admin`);
       return res.status(403).json({ success: false, message: 'Admin role required' });
     }
+
+    console.log(`✅ [Admin Login] Successful login for ${user.email}`);
 
     res.json({
       success: true,
@@ -48,8 +84,9 @@ exports.adminLogin = async (req, res) => {
       token: generateToken(user._id, user.role)
     });
   } catch (error) {
-    console.error('Admin login error:', error);
-    res.status(500).json({ success: false, message: 'Admin login failed', error: error.message });
+    console.error(`❌ [Admin Login] Server Error: ${error.message}`);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ success: false, message: 'Admin login failed - server error', error: error.message });
   }
 };
 
