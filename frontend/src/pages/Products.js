@@ -18,15 +18,31 @@ function Products({ addToCart }) {
       try {
         setLoading(true);
         setError('');
-        console.log('[Products] Fetching:', `${API_BASE_URL}/products`);
+        console.log('[Products] Fetching from URL:', `${API_BASE_URL}/products`);
+        console.log('[Products] NODE_ENV:', process.env.NODE_ENV);
         const { data } = await fetchJson(`${API_BASE_URL}/products`);
         console.log('[Products] API response count:', data?.count ?? 0);
 
+        if (!data || !data.products) {
+          console.warn('[Products] API response missing products array:', data);
+          setError('Server returned no products. Check Render logs.');
+          setProducts([]);
+          return;
+        }
+
         const normalized = (data.products || []).map(normalizeProduct);
+        console.log('[Products] Successfully loaded and normalized', normalized.length, 'products');
         setProducts(normalized);
       } catch (err) {
-        console.error('[Products] Fetch failed:', err);
-        setError(err.message || 'Unable to load products');
+        console.error('[Products] Fetch failed:', {
+          message: err.message,
+          apiUrl: API_BASE_URL,
+          status: err.status,
+          response: err.response,
+          stack: err.stack
+        });
+        const errorMsg = err.response?.message || err.message || 'Unable to load products. Check server connection.';
+        setError(errorMsg);
       } finally {
         setLoading(false);
       }
