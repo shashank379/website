@@ -25,7 +25,7 @@ router.post('/add-product', upload.array('images', 5), async (req, res) => {
     const { name, price, description, category, stock } = req.body;
 
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: 'No images uploaded' });
+      return res.status(400).json({ message: 'Please upload at least one image' });
     }
 
     const imageUrls = req.files.map((file) => file.path);
@@ -44,7 +44,6 @@ router.post('/add-product', upload.array('images', 5), async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Product added successfully',
       product
     });
   } catch (error) {

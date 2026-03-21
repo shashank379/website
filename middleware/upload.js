@@ -7,6 +7,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'ritzy24_products',
     allowed_formats: ['jpg', 'png', 'jpeg'],
+    transformation: [{ width: 800, height: 800, crop: 'limit' }]
   },
 });
 
