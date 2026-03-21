@@ -13,13 +13,18 @@ function AdminAddProduct() {
     description: '',
     price: '',
     originalPrice: '',
-    image: '',
     category: 'General',
     stock: '0'
   });
+  const [images, setImages] = useState([]);
 
   const onChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const onImageChange = (e) => {
+    const files = Array.from(e.target.files || []).slice(0, 5);
+    setImages(files);
   };
 
   const onSubmit = async (e) => {
@@ -28,19 +33,27 @@ function AdminAddProduct() {
 
     try {
       setSaving(true);
-      await fetchJson(`${API_BASE_URL}/admin/products`, {
+      if (images.length === 0) {
+        throw new Error('Please select at least one image.');
+      }
+
+      const formData = new FormData();
+      formData.append('name', form.name);
+      formData.append('description', form.description);
+      formData.append('price', String(Number(form.price)));
+      formData.append('category', form.category);
+      formData.append('stock', String(Number(form.stock || 0)));
+
+      images.forEach((file) => {
+        formData.append('images', file);
+      });
+
+      await fetchJson(`${API_BASE_URL}/admin/add-product`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           ...getAdminHeaders()
         },
-        body: JSON.stringify({
-          ...form,
-          price: Number(form.price),
-          originalPrice: Number(form.originalPrice || form.price),
-          stock: Number(form.stock || 0),
-          images: form.image ? [form.image] : []
-        })
+        body: formData
       });
 
       navigate('/admin/products');
@@ -59,7 +72,7 @@ function AdminAddProduct() {
         <form onSubmit={onSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}
 
-          {['name', 'description', 'price', 'originalPrice', 'image', 'category', 'stock'].map((field) => (
+          {['name', 'description', 'price', 'category', 'stock'].map((field) => (
             <div key={field} className="form-group">
               <label htmlFor={field}>{field}</label>
               <input
@@ -71,6 +84,19 @@ function AdminAddProduct() {
               />
             </div>
           ))}
+
+          <div className="form-group">
+            <label htmlFor="images">Images (up to 5)</label>
+            <input
+              id="images"
+              name="images"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={onImageChange}
+              required
+            />
+          </div>
 
           <button className="btn-login" type="submit" disabled={saving}>
             {saving ? 'Saving...' : 'Create Product'}

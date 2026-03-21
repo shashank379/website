@@ -53,21 +53,23 @@ exports.adminLogin = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid admin credentials' });
     }
 
-    const user = await User.findOne({ email: normalizedEmail });
-    
-    if (!user) {
-      console.warn(`⚠️ [Admin Login] User not found in database for ${normalizedEmail}`);
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
-    }
+    let user = await User.findOne({ email: normalizedEmail });
 
-    if (!(await user.matchPassword(password))) {
-      console.warn(`⚠️ [Admin Login] Password mismatch in database for ${normalizedEmail}`);
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    if (!user) {
+      console.warn(`⚠️ [Admin Login] Admin user not found for ${normalizedEmail}. Creating admin user from env credentials.`);
+      user = await User.create({
+        name: 'Admin',
+        email: normalizedEmail,
+        password: configuredAdminPassword,
+        role: 'admin'
+      });
+      console.log(`✅ [Admin Login] Auto-created admin user: ${user._id}`);
     }
 
     if (user.role !== 'admin') {
-      console.warn(`⚠️ [Admin Login] User ${normalizedEmail} role is ${user.role}, not admin`);
-      return res.status(403).json({ success: false, message: 'Admin role required' });
+      console.warn(`⚠️ [Admin Login] Upgrading user ${normalizedEmail} role from ${user.role} to admin`);
+      user.role = 'admin';
+      await user.save();
     }
 
     console.log(`✅ [Admin Login] Successful login for ${user.email}`);
