@@ -40,8 +40,6 @@ function Login() {
   };
 
   const handleLogin = async (e) => {
-      console.log('[Admin Login] Attempting login with URL:', API_BASE_URL);
-      console.log('[Admin Login] Admin email:', adminEmail);
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -52,10 +50,8 @@ function Login() {
       return;
     }
 
-        console.log('[Admin Login] Response status:', response.status, response.statusText);
     if (!email.includes('@')) {
       setError('Please enter a valid email');
-        console.log('[Admin Login] Response data:', data);
       setLoading(false);
       return;
     }
@@ -65,7 +61,6 @@ function Login() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        console.log('[Admin Login] Login successful!');
         },
         body: JSON.stringify({ email, password })
       });
@@ -73,7 +68,7 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.msg || 'Login failed');
+        setError(data.message || data.msg || 'Login failed');
         setLoading(false);
         return;
       }
@@ -131,7 +126,7 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.msg || 'Registration failed');
+        setError(data.message || data.msg || 'Registration failed');
         setLoading(false);
         return;
       }
