@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import API_BASE_URL from '../config/api';
 import { setAdminAuth } from '../utils/adminAuth';
 
@@ -9,7 +9,9 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [activeSection, setActiveSection] = useState('user');
+  const location = useLocation();
+  const isAdminLoginRoute = location.pathname.startsWith('/admin/login');
+  const [activeSection, setActiveSection] = useState(isAdminLoginRoute ? 'admin' : 'user');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,6 +31,12 @@ function Login() {
       setCurrentUser(JSON.parse(user));
     }
   }, []);
+
+  useEffect(() => {
+    if (isAdminLoginRoute) {
+      setActiveSection('admin');
+    }
+  }, [isAdminLoginRoute]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -176,7 +184,7 @@ function Login() {
       setAdminAuth({ token: data.token, admin: data.admin });
       navigate('/admin/dashboard');
     } catch (err) {
-      setAdminError('Connection error. Make sure the server is running on port 5000.');
+      setAdminError('Connection error. Please check backend availability and admin credentials.');
       console.error('Admin login error:', err);
     }
 
@@ -187,7 +195,7 @@ function Login() {
     <section className="section login">
       <div className="section-inner">
         <div className="login-container">
-          {isLoggedIn && currentUser ? (
+          {isLoggedIn && currentUser && !isAdminLoginRoute ? (
             // Show logged-in state
             <>
               <div style={{
@@ -286,12 +294,13 @@ function Login() {
               <h2 className="section-title">Login</h2>
               <p className="login-subtitle">Choose your section and continue.</p>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '10px',
-                marginBottom: '20px'
-              }}>
+              {!isAdminLoginRoute && (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '10px',
+                  marginBottom: '20px'
+                }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -328,7 +337,8 @@ function Login() {
                 >
                   Admin
                 </button>
-              </div>
+                </div>
+              )}
 
               {activeSection === 'user' ? (
                 <>

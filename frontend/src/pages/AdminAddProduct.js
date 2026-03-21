@@ -67,6 +67,7 @@ function AdminAddProduct() {
       });
 
       setSuccess('Product added successfully!');
+      alert('Product has been added successfully.');
       setForm({
         name: '',
         description: '',
@@ -82,6 +83,7 @@ function AdminAddProduct() {
       }, 700);
     } catch (err) {
       setError(err.message || 'Failed to add product.');
+      alert(`Product upload failed: ${err.message || 'Please try again.'}`);
     } finally {
       setSaving(false);
     }

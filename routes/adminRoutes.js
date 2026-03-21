@@ -52,6 +52,43 @@ router.post('/add-product', upload.array('images', 5), async (req, res) => {
   }
 });
 
+// Edit Product with optional new Cloudinary Images
+router.put('/products/:id/upload', upload.array('images', 5), async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    const { name, price, originalPrice, description, category, stock } = req.body;
+
+    if (name !== undefined) product.name = name;
+    if (description !== undefined) product.description = description;
+    if (price !== undefined && price !== '') product.price = Number(price);
+    if (originalPrice !== undefined && originalPrice !== '') product.originalPrice = Number(originalPrice);
+    if (category !== undefined) product.category = category;
+    if (stock !== undefined && stock !== '') product.stock = Number(stock);
+
+    if (req.files && req.files.length > 0) {
+      const imageUrls = req.files.map((file) => file.path);
+      product.image = imageUrls[0];
+      product.images = imageUrls;
+    }
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: 'Product updated successfully',
+      product
+    });
+  } catch (error) {
+    console.error('Edit product upload error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 router.route('/products').get(getAdminProducts).post(createAdminProduct);
 router.route('/products/:id').get(getAdminProductById).put(updateAdminProduct).delete(deleteAdminProduct);
 
