@@ -55,11 +55,11 @@ const productSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: true,
-      trim: true
+      trim: true,
+      default: ''
     },
     images: {
-      type: [{ type: String }],
+      type: [String],
       default: []
     },
     category: {
