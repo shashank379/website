@@ -182,7 +182,21 @@ function Login() {
       }
 
       setAdminAuth({ token: data.token, admin: data.admin });
-      navigate('/admin/dashboard');
+      const adminDashboardUrl = `${window.location.origin}/admin/dashboard`;
+      const adminWindow = window.open(adminDashboardUrl, '_blank', 'noopener,noreferrer');
+
+      if (!adminWindow) {
+        setAdminError('Pop-up was blocked. Please allow pop-ups and try again.');
+        setAdminLoading(false);
+        return;
+      }
+
+      if (isAdminLoginRoute) {
+        navigate('/login', { replace: true });
+      }
+
+      setAdminEmail('');
+      setAdminPassword('');
     } catch (err) {
       setAdminError('Connection error. Please check backend availability and admin credentials.');
       console.error('Admin login error:', err);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
@@ -44,11 +44,26 @@ function App() {
 
   return (
     <Router>
-      <div className="app">
-        <ScrollToTop />
-        <Header cartCount={cart.length} />
-        <main>
-          <Routes>
+      <AppContent
+        cart={cart}
+        addToCart={addToCart}
+        removeFromCart={removeFromCart}
+        clearCart={clearCart}
+      />
+    </Router>
+  );
+}
+
+function AppContent({ cart, addToCart, removeFromCart, clearCart }) {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="app">
+      <ScrollToTop />
+      {!isAdminRoute && <Header cartCount={cart.length} />}
+      <main>
+        <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/services" element={<Services />} />
@@ -107,11 +122,10 @@ function App() {
             </Route>
 
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+        </Routes>
+      </main>
+      {!isAdminRoute && <Footer />}
+    </div>
   );
 }
 
