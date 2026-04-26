@@ -288,3 +288,50 @@ exports.updateAdminOrderStatus = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to update order status', error: error.message });
   }
 };
+
+// @desc    Upload product images
+// @route   PUT /api/admin/products/:id/upload
+// @access  Private/Admin
+exports.uploadProductImages = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const uploadedFiles = req.files || [];
+
+    if (!uploadedFiles || uploadedFiles.length === 0) {
+      return res.status(400).json({ success: false, message: 'No images uploaded' });
+    }
+
+    // Extract URLs from uploaded files
+    const imageUrls = uploadedFiles.map(file => file.path);
+
+    // Update product with new images and other fields
+    const updatePayload = { images: imageUrls };
+
+    // Include other fields if provided in form data
+    const fields = ['name', 'description', 'price', 'originalPrice', 'category', 'stock'];
+    fields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        if (field === 'price' || field === 'originalPrice' || field === 'stock') {
+          const num = toNumber(req.body[field]);
+          if (num !== undefined) updatePayload[field] = num;
+        } else {
+          updatePayload[field] = req.body[field];
+        }
+      }
+    });
+
+    const product = await Product.findByIdAndUpdate(id, updatePayload, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    res.json({ success: true, message: 'Images uploaded and product updated', product });
+  } catch (error) {
+    console.error('Upload product images error:', error);
+    res.status(500).json({ success: false, message: 'Failed to upload images', error: error.message });
+  }
+};

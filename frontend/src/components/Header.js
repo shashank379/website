@@ -1,10 +1,17 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { getAdminAuth } from '../utils/adminAuth';
 
 function Header({ cartCount = 0 }) {
   const location = useLocation();
+  const adminAuth = getAdminAuth();
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
+
+  const openAdminInNewTab = () => {
+    const adminDashboardUrl = `${window.location.origin}/admin/dashboard`;
+    window.open(adminDashboardUrl, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <header className="site-header">
@@ -56,6 +63,25 @@ function Header({ cartCount = 0 }) {
                 Contact
               </Link>
             </li>
+            {adminAuth && (
+              <li>
+                <button
+                  onClick={openAdminInNewTab}
+                  className="nav-link"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'inherit',
+                    padding: 'inherit',
+                    font: 'inherit'
+                  }}
+                  title="Open Admin Panel in new tab"
+                >
+                  Admin Panel ↗️
+                </button>
+              </li>
+            )}
             <li>
               <Link to="/cart" className={`nav-link ${isActive('/cart')}`} style={{ position: 'relative' }}>
                 🛒 Cart

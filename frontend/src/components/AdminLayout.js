@@ -11,6 +11,11 @@ function AdminLayout() {
     navigate('/admin/login');
   };
 
+  const openAdminInNewTab = () => {
+    const adminDashboardUrl = `${window.location.origin}/admin/dashboard`;
+    window.open(adminDashboardUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <section className="section">
       <div className="section-inner" style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -18,6 +23,14 @@ function AdminLayout() {
           <h2 className="section-title" style={{ margin: 0 }}>Admin Panel</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ color: '#666' }}>{admin?.name || 'Admin'}</span>
+            <button 
+              className="btn-cta" 
+              style={{ padding: '8px 14px', fontSize: '0.9rem' }}
+              onClick={openAdminInNewTab}
+              title="Open admin panel in new tab"
+            >
+              Open in New Tab ↗️
+            </button>
             <button className="btn-login" style={{ padding: '8px 14px' }} onClick={handleLogout}>Logout</button>
           </div>
         </div>
