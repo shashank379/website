@@ -16,6 +16,9 @@ console.log('   - MONGODB_URI loaded:', !!process.env.MONGODB_URI);
 console.log('   - MONGO_URI loaded:', !!process.env.MONGO_URI);
 console.log('   - FRONTEND_URL:', process.env.FRONTEND_URL || 'not set');
 console.log('   - PORT:', process.env.PORT || 5000);
+console.log('   - CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? '✓ Set' : '✗ NOT SET - Image uploads will fail!');
+console.log('   - CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✓ Set' : '✗ NOT SET');
+console.log('   - CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✓ Set' : '✗ NOT SET');
 
 // Connect to MongoDB
 connectDB();
