@@ -63,7 +63,7 @@ function Header({ cartCount = 0 }) {
             {adminAuth && (
               <li>
                 <button 
-                  onClick={() => window.open('/admin', '_blank')}
+                  onClick={() => window.open('/admin/dashboard', '_blank')}
                   className="nav-link"
                   style={{
                     background: 'none',
