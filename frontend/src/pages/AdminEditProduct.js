@@ -88,23 +88,47 @@ function AdminEditProduct() {
       formData.append('category', form.category);
       formData.append('stock', String(Number(form.stock || 0)));
 
-      images.forEach((file) => {
-        formData.append('images', file);
-      });
-
-      await fetchJson(`${API_BASE_URL}/admin/products/${id}/upload`, {
-        method: 'PUT',
-        headers: {
-          ...getAdminHeaders()
-        },
-        body: formData
-      });
+      // Only include images if there are new images to upload
+      if (images.length > 0) {
+        images.forEach((file) => {
+          formData.append('images', file);
+        });
+        // Use the upload endpoint when there are images
+        console.log('[AdminEditProduct] Uploading product with images...');
+        await fetchJson(`${API_BASE_URL}/admin/products/${id}/upload`, {
+          method: 'PUT',
+          headers: {
+            ...getAdminHeaders()
+          },
+          body: formData
+        });
+      } else {
+        // Use standard update endpoint when no new images
+        console.log('[AdminEditProduct] Updating product without new images...');
+        await fetchJson(`${API_BASE_URL}/admin/products/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAdminHeaders()
+          },
+          body: JSON.stringify({
+            name: form.name,
+            description: form.description,
+            price: Number(form.price),
+            originalPrice: Number(form.originalPrice || form.price),
+            category: form.category,
+            stock: Number(form.stock || 0)
+          })
+        });
+      }
 
       alert('Product has been edited successfully.');
       navigate('/admin/products');
     } catch (err) {
-      setError(err.message || 'Failed to update product.');
-      alert(`Product edit failed: ${err.message || 'Please try again.'}`);
+      const errorMsg = err.message || 'Failed to update product.';
+      console.error('[AdminEditProduct] Error:', errorMsg);
+      setError(errorMsg);
+      alert(`Product edit failed: ${errorMsg}`);
     } finally {
       setSaving(false);
     }

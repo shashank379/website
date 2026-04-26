@@ -106,15 +106,34 @@ app.get('/api/send-test-email', async (req, res) => {
   }
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
 // Root test route
 app.get("/", (req, res) => {
-  res.status(200).send("Ritzy Shop API is running successfully 🚀");
+  res.status(200).json({ 
+    status: 'OK',
+    message: 'Ritzy Shop API is running successfully 🚀',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({ 
+    success: false,
+    message: err.message || 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
+// 404 handler - must be last
+app.use((req, res) => {
+  console.warn('404 Not Found:', req.method, req.url);
+  res.status(404).json({ 
+    success: false,
+    message: 'Route not found',
+    path: req.url,
+    method: req.method
+  });
 });
 
 const PORT = process.env.PORT || 5000;

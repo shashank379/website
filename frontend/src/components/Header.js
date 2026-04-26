@@ -8,10 +8,7 @@ function Header({ cartCount = 0 }) {
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
-  const openAdminInNewTab = () => {
-    const adminDashboardUrl = `${window.location.origin}/admin/dashboard`;
-    window.open(adminDashboardUrl, '_blank', 'noopener,noreferrer');
-  };
+
 
   return (
     <header className="site-header">
@@ -65,8 +62,8 @@ function Header({ cartCount = 0 }) {
             </li>
             {adminAuth && (
               <li>
-                <button
-                  onClick={openAdminInNewTab}
+                <button 
+                  onClick={() => window.open('/admin', '_blank')}
                   className="nav-link"
                   style={{
                     background: 'none',
@@ -76,9 +73,8 @@ function Header({ cartCount = 0 }) {
                     padding: 'inherit',
                     font: 'inherit'
                   }}
-                  title="Open Admin Panel in new tab"
                 >
-                  Admin Panel ↗️
+                  Admin Panel
                 </button>
               </li>
             )}

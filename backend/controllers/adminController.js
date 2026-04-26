@@ -297,12 +297,18 @@ exports.uploadProductImages = async (req, res) => {
     const { id } = req.params;
     const uploadedFiles = req.files || [];
 
+    console.log(`📸 [Upload Images] Product ID: ${id}, Files received: ${uploadedFiles.length}`);
+
     if (!uploadedFiles || uploadedFiles.length === 0) {
+      console.warn(`⚠️ [Upload Images] No files uploaded for product ${id}`);
       return res.status(400).json({ success: false, message: 'No images uploaded' });
     }
 
     // Extract URLs from uploaded files
-    const imageUrls = uploadedFiles.map(file => file.path);
+    const imageUrls = uploadedFiles.map(file => {
+      console.log(`📤 [Upload Images] Uploaded file: ${file.filename} -> ${file.path}`);
+      return file.path;
+    });
 
     // Update product with new images and other fields
     const updatePayload = { images: imageUrls };
@@ -320,18 +326,27 @@ exports.uploadProductImages = async (req, res) => {
       }
     });
 
+    console.log(`🔄 [Upload Images] Updating product ${id} with payload:`, updatePayload);
+
     const product = await Product.findByIdAndUpdate(id, updatePayload, {
       new: true,
       runValidators: true
     });
 
     if (!product) {
+      console.error(`❌ [Upload Images] Product not found: ${id}`);
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
+    console.log(`✅ [Upload Images] Successfully updated product ${id}`);
     res.json({ success: true, message: 'Images uploaded and product updated', product });
   } catch (error) {
-    console.error('Upload product images error:', error);
-    res.status(500).json({ success: false, message: 'Failed to upload images', error: error.message });
+    console.error(`❌ [Upload Images] Error:`, error.message);
+    console.error('Stack:', error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to upload images', 
+      error: error.message 
+    });
   }
 };
