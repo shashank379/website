@@ -132,8 +132,6 @@ exports.createAdminProduct = async (req, res) => {
       price,
       originalPrice,
       description,
-      image,
-      images,
       category,
       stock
     } = req.body;
@@ -146,14 +144,25 @@ exports.createAdminProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: 'name, price and description are required' });
     }
 
+    // Handle uploaded images from multer
+    const uploadedFiles = req.files || [];
+    const imageUrls = uploadedFiles.map(file => file.path);
+    
+    // Also support string/array fallback if sent directly
+    let finalImages = imageUrls.length > 0 ? imageUrls : [];
+    if (finalImages.length === 0) {
+      if (Array.isArray(req.body.images)) finalImages = req.body.images;
+      else if (req.body.image) finalImages = [req.body.image];
+    }
+
     const product = await Product.create({
       legacyId,
       name,
       price: parsedPrice,
       originalPrice: parsedOriginalPrice,
       description,
-      image: image || '',
-      images: Array.isArray(images) ? images : (image ? [image] : []),
+      image: finalImages.length > 0 ? finalImages[0] : '',
+      images: finalImages,
       category: category || 'General',
       stock: parsedStock ?? 0
     });

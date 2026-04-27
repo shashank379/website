@@ -1,6 +1,19 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const upload = require("../middleware/upload");
+const {
+  adminLogin,
+  getAdminProducts,
+  getAdminProductById,
+  createAdminProduct,
+  updateAdminProduct,
+  deleteAdminProduct,
+  uploadProductImages,
+  getAdminOrders,
+  getAdminOrderById,
+  updateAdminOrderStatus
+} = require('../controllers/adminController');
+const { protect, adminOnly } = require('../middleware/authMiddleware');
+const upload = require('../middleware/upload');
 
 // Multer error handler wrapper
 const handleUpload = (req, res, next) => {
@@ -17,85 +30,28 @@ const handleUpload = (req, res, next) => {
   });
 };
 
-// Test route
-router.get("/test", (req, res) => {
-  res.json({ 
-    success: true,
-    message: "Admin API is working" 
-  });
-});
+router.post('/login', adminLogin);
 
-// Simple add product with single image (for testing)
-router.post("/add-product", upload.single("image"), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'No image uploaded' 
-      });
-    }
+router.use(protect, adminOnly);
 
-    const { name, price, description } = req.body;
-    const imageUrl = req.file.path;
+// Standard product routes
+router.route('/products')
+  .get(getAdminProducts)
+  .post(handleUpload, createAdminProduct);
 
-    res.json({
-      success: true,
-      message: "Product added successfully",
-      product: {
-        name,
-        price,
-        description,
-        image: imageUrl,
-      },
-    });
-  } catch (error) {
-    console.error('❌ [Add Product] Error:', error);
-    res.status(500).json({ 
-      success: false,
-      message: "Failed to add product",
-      error: error.message 
-    });
-  }
-});
+router.route('/products/:id')
+  .get(getAdminProductById)
+  .put(updateAdminProduct)
+  .delete(deleteAdminProduct);
 
-// Upload endpoint for editing products - matches frontend expectation: /api/admin/products/:id/upload
-router.put("/products/:id/upload", handleUpload, (req, res) => {
-  try {
-    const { id } = req.params;
-    const files = req.files || [];
+// Upload endpoint for editing products
+router.put('/products/:id/upload', handleUpload, uploadProductImages);
 
-    console.log(`📸 [Upload] Product ID: ${id}, Files: ${files.length}`);
+// Explicit add-product route matching AdminAddProduct frontend logic
+router.post('/add-product', handleUpload, createAdminProduct);
 
-    if (!files || files.length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'No images uploaded' 
-      });
-    }
-
-    const imageUrls = files.map(file => {
-      console.log(`✓ [Upload] File uploaded: ${file.filename}`);
-      return file.path;
-    });
-
-    // Return the uploaded images
-    res.json({
-      success: true,
-      message: 'Images uploaded successfully',
-      images: imageUrls,
-      product: {
-        id,
-        images: imageUrls
-      }
-    });
-  } catch (error) {
-    console.error('❌ [Upload] Error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to upload images',
-      error: error.message 
-    });
-  }
-});
+router.get('/orders', getAdminOrders);
+router.get('/orders/:id', getAdminOrderById);
+router.put('/orders/:id/status', updateAdminOrderStatus);
 
 module.exports = router;
