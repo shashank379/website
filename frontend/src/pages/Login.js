@@ -35,6 +35,8 @@ function Login() {
   useEffect(() => {
     if (isAdminLoginRoute) {
       setActiveSection('admin');
+    } else {
+      setActiveSection('user');
     }
   }, [isAdminLoginRoute]);
 
