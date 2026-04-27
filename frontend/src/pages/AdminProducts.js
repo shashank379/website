@@ -34,7 +34,7 @@ function AdminProducts() {
     <section className="section">
       <div className="section-inner" style={{ maxWidth: '1000px', margin: '0 auto', padding: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0 }}>Products Management</h3>
+          <h3 style={{ margin: 0 }}>Products Management (Updated)</h3>
           <Link to="/admin/products/new" className="btn-cta" style={{ textAlign: 'center' }}>New Product</Link>
         </div>
 
