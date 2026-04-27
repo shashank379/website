@@ -305,54 +305,10 @@ function Login() {
           ) : (
             // Show login/signup form
             <>
-              <h2 className="section-title">Login</h2>
-              <p className="login-subtitle">Choose your section and continue.</p>
-
-              {!isAdminLoginRoute && (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '10px',
-                  marginBottom: '20px'
-                }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveSection('user');
-                    setAdminError('');
-                  }}
-                  style={{
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: activeSection === 'user' ? '2px solid #FF2A0A' : '1px solid #ddd',
-                    background: activeSection === 'user' ? '#fff3ef' : '#fff',
-                    color: '#222',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  User
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveSection('admin');
-                    setError('');
-                  }}
-                  style={{
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: activeSection === 'admin' ? '2px solid #FF2A0A' : '1px solid #ddd',
-                    background: activeSection === 'admin' ? '#fff3ef' : '#fff',
-                    color: '#222',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Admin
-                </button>
-                </div>
-              )}
+              <h2 className="section-title">{activeSection === 'admin' ? 'Admin Login' : 'Login'}</h2>
+              <p className="login-subtitle">
+                {activeSection === 'admin' ? 'Enter admin credentials to continue.' : 'Sign in to your account.'}
+              </p>
 
               {activeSection === 'user' ? (
                 <>
