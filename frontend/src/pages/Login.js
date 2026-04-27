@@ -42,6 +42,7 @@ function Login() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('adminAuth'); // Also clear any stray admin tokens
     setIsLoggedIn(false);
     setCurrentUser(null);
     alert('You have been logged out successfully!');
