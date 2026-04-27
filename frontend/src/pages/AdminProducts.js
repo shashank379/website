@@ -50,9 +50,37 @@ function AdminProducts() {
                   <strong>{product.name}</strong>
                   <p style={{ margin: '6px 0 0', color: '#666' }}>₹{product.price}</p>
                 </div>
-                <Link to={`/admin/products/edit/${product._id}`} style={{ color: '#FF2A0A', fontWeight: 600 }}>
-                  Edit
-                </Link>
+                <div style={{ display: 'flex', gap: '15px' }}>
+                  <Link to={`/admin/products/edit/${product._id}`} style={{ color: '#FF2A0A', fontWeight: 600 }}>
+                    Edit
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      if (window.confirm('Are you sure you want to delete this product?')) {
+                        try {
+                          await fetchJson(`${API_BASE_URL}/admin/products/${product._id}`, {
+                            method: 'DELETE',
+                            headers: getAdminHeaders()
+                          });
+                          setProducts(p => p.filter(p => p._id !== product._id));
+                          alert('Product deleted successfully');
+                        } catch (err) {
+                          alert(`Failed to delete: ${err.message}`);
+                        }
+                      }
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#d9534f',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

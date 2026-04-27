@@ -320,7 +320,12 @@ exports.uploadProductImages = async (req, res) => {
     });
 
     // Update product with new images and other fields
-    const updatePayload = { images: imageUrls };
+    let finalImages = [...imageUrls];
+    if (req.body.existingImages) {
+      const existing = Array.isArray(req.body.existingImages) ? req.body.existingImages : [req.body.existingImages];
+      finalImages = [...existing, ...imageUrls];
+    }
+    const updatePayload = { images: finalImages };
 
     // Include other fields if provided in form data
     const fields = ['name', 'description', 'price', 'originalPrice', 'category', 'stock'];

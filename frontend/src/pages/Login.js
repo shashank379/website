@@ -191,9 +191,8 @@ function Login() {
         return;
       }
 
-      if (isAdminLoginRoute) {
-        navigate('/login', { replace: true });
-      }
+      // Navigate the current tab to the user page for parallel viewing
+      navigate('/', { replace: true });
 
       setAdminEmail('');
       setAdminPassword('');

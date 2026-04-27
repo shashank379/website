@@ -19,6 +19,7 @@ function AdminEditProduct() {
     stock: '0'
   });
   const [images, setImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [preview, setPreview] = useState([]);
 
   useEffect(() => {
@@ -39,10 +40,10 @@ function AdminEditProduct() {
           category: product.category || 'General',
           stock: String(product.stock ?? 0)
         });
-        const existingImages = Array.isArray(product.images) && product.images.length > 0
+        const loadedImages = Array.isArray(product.images) && product.images.length > 0
           ? product.images
           : (product.image ? [product.image] : []);
-        setPreview(existingImages);
+        setExistingImages(loadedImages);
       } catch (err) {
         setError(err.message || 'Failed to load product.');
       } finally {
@@ -93,6 +94,9 @@ function AdminEditProduct() {
         images.forEach((file) => {
           formData.append('images', file);
         });
+        existingImages.forEach((img) => {
+          formData.append('existingImages', img);
+        });
         // Use the upload endpoint when there are images
         console.log('[AdminEditProduct] Uploading product with images...');
         await fetchJson(`${API_BASE_URL}/admin/products/${id}/upload`, {
@@ -117,7 +121,8 @@ function AdminEditProduct() {
             price: Number(form.price),
             originalPrice: Number(form.originalPrice || form.price),
             category: form.category,
-            stock: Number(form.stock || 0)
+            stock: Number(form.stock || 0),
+            images: existingImages
           })
         });
       }
@@ -162,7 +167,39 @@ function AdminEditProduct() {
           ))}
 
           <div className="form-group">
-            <label htmlFor="images">Upload Images (up to 5)</label>
+            <label>Existing Images</label>
+            {existingImages.length === 0 && <p style={{ fontSize: '0.9rem', color: '#666' }}>No existing images.</p>}
+            {existingImages.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '12px' }}>
+                {existingImages.map((src, index) => (
+                  <div key={`existing-${index}`} style={{ position: 'relative' }}>
+                    <img
+                      src={src}
+                      alt={`existing-${index}`}
+                      style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
+                      loading="lazy"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setExistingImages(prev => prev.filter((_, i) => i !== index))}
+                      style={{
+                        position: 'absolute', top: 5, right: 5,
+                        background: 'red', color: 'white', border: 'none',
+                        borderRadius: '50%', width: '24px', height: '24px',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
+                      }}
+                      title="Remove this image"
+                    >
+                      Ã—
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="images">Upload New Images (Appends to existing)</label>
             <input
               id="images"
               name="images"
@@ -177,7 +214,7 @@ function AdminEditProduct() {
                   <img
                     key={`${src}-${index}`}
                     src={src}
-                    alt={`preview-${index + 1}`}
+                    alt={`new-preview-${index + 1}`}
                     style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
                     loading="lazy"
                   />
