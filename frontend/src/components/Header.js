@@ -60,7 +60,7 @@ function Header({ cartCount = 0 }) {
                 Contact
               </Link>
             </li>
-            {adminAuth && (
+            {adminAuth?.admin?.role === 'admin' && (
               <li>
                 <button 
                   onClick={() => window.open('/admin/dashboard', '_blank')}
